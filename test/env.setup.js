@@ -15,3 +15,5 @@ process.env.DB_USERNAME = 'username';
 process.env.DB_PASSWORD = 'password';
 process.env.DB_NAME = 'database';
 process.env.TRACKING_BASE_URL = 'http://localhost:3000';
+process.env.TRACKING_USER_EMAIL = 'email@example.com';
+process.env.TRACKING_USER_PASSWORD = 'password';
