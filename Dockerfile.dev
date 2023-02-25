@@ -1,0 +1,10 @@
+FROM node:18 AS base
+WORKDIR /app
+COPY package*.json ./
+
+FROM base AS installer
+RUN npm install --silent --ignore-scripts
+COPY . .
+
+FROM installer AS dev
+CMD ["npm", "run", "start:debug"]

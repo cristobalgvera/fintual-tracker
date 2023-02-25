@@ -1,11 +1,9 @@
 ---
 services:
-  # TODO: Add proper service name
-  ${SERVICE_NAME}:
+  app:
     build:
       dockerfile: .devcontainer/Dockerfile
       target: dev
     volumes:
-      # TODO: Add proper service folder name
-      - ./${SERVICE_NAME}:/app
+      - .:/app
       - /app/node_modules/

@@ -1,14 +1,14 @@
 {
   "name": "${localWorkspaceFolderBasename}",
-  "dockerComposeFile": ["../../compose.yml", "compose.devcontainer.yml"],
-  "service": "${localWorkspaceFolderBasename}",
+  "dockerComposeFile": ["../compose.yml", "compose.devcontainer.yml"],
+  "service": "app",
   "workspaceFolder": "/app",
 
   // Do not down the services when the devcontainer is closed
   "shutdownAction": "none",
 
   // Run only this service and the ones that depends on
-  "runServices": ["${localWorkspaceFolderBasename}"],
+  "runServices": ["app"],
 
   "features": {
     "ghcr.io/devcontainers/features/git:1": {}
