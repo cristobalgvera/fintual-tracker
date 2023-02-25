@@ -14,3 +14,4 @@ process.env.DB_PORT = 1234;
 process.env.DB_USERNAME = 'username';
 process.env.DB_PASSWORD = 'password';
 process.env.DB_NAME = 'database';
+process.env.TRACKING_BASE_URL = 'http://localhost:3000';

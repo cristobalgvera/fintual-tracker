@@ -11,6 +11,7 @@ describe('EnvironmentSchema', () => {
     DB_USERNAME: 'db-username',
     DB_PORT: 1234,
     DB_HOST: 'db-host',
+    TRACKING_BASE_URL: 'http://localhost:3000',
   };
 
   describe.each<Environment['NODE_ENV']>(['development', 'test', 'production'])(
@@ -62,6 +63,8 @@ describe('EnvironmentSchema', () => {
           { DB_HOST: undefined },
           { DB_HOST: 1234 },
           { DB_HOST: '' },
+          { TRACKING_BASE_URL: undefined },
+          { TRACKING_BASE_URL: 'not-url' },
         ])('should invalidate if environment has %s', (partialEnvironment) => {
           const environment = {
             ...validEnvironment,

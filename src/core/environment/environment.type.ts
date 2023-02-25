@@ -7,4 +7,5 @@ export class Environment {
   DB_PASSWORD: string;
   DB_PORT: number;
   DB_USERNAME: string;
+  TRACKING_BASE_URL: string;
 }
