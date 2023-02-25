@@ -7,8 +7,9 @@ export class DatabaseService implements TypeOrmOptionsFactory {
   constructor(private readonly environmentService: EnvironmentService) {}
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
-    const sharedTypeOrmModuleOptions: TypeOrmModuleOptions = {
-      type: 'mysql',
+    return {
+      type: 'postgres',
+      host: this.environmentService.getEnvironmentValue('DB_HOST'),
       port: this.environmentService.getEnvironmentValue('DB_PORT'),
       username: this.environmentService.getEnvironmentValue('DB_USERNAME'),
       password: this.environmentService.getEnvironmentValue('DB_PASSWORD'),
@@ -17,18 +18,6 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       migrations: ['dist/**/migrations/*.js'],
       migrationsTableName: 'migrations_typeorm',
       migrationsRun: true,
-    };
-
-    if (this.environmentService.isProd())
-      return {
-        ...sharedTypeOrmModuleOptions,
-        socketPath:
-          this.environmentService.getEnvironmentValue('DB_SOCKET_PATH'),
-      };
-
-    return {
-      ...sharedTypeOrmModuleOptions,
-      host: this.environmentService.getEnvironmentValue('DB_HOST'),
     };
   }
 }
