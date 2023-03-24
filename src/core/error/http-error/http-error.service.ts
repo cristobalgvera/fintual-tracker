@@ -56,9 +56,13 @@ export class HttpErrorService extends ErrorService<
     );
   }
 
-  protected validateError(error: AxiosError<unknown, any>): void {
+  protected validateError(
+    error: AxiosError<unknown, any>,
+  ): Observable<never> | undefined {
     if (!error.isAxiosError)
-      throw Error(`Invalid error type. Expected AxiosError`);
+      return throwError(
+        () => new Error(`Invalid error type. Expected AxiosError`),
+      );
   }
 
   protected throwException(error: AxiosError<unknown, any>): Observable<never> {
@@ -74,7 +78,7 @@ export class HttpErrorService extends ErrorService<
           throw new NotFoundException(error.response.data);
         case HttpStatus.PAYMENT_REQUIRED:
           throw new HttpException(
-            error.response.data!,
+            error.response.data as Record<string, unknown>,
             HttpStatus.PAYMENT_REQUIRED,
           );
         case HttpStatus.CONFLICT:
