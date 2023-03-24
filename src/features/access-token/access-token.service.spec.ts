@@ -107,15 +107,15 @@ describe('AccessTokenService', () => {
           .spyOn(httpErrorService, 'handleError')
           .mockReturnValueOnce(throwError(() => expected));
 
-        try {
-          await firstValueFrom(underTest.getAccessToken());
-        } catch (actual) {
-          expect(actual).toEqual(expected);
-        }
+        await expect(() =>
+          firstValueFrom(underTest.getAccessToken()),
+        ).rejects.toEqual(expected);
       });
 
       describe('when calling the HttpErrorService', () => {
         it('should pass the error thrown by the HTTP call', async () => {
+          expect.hasAssertions();
+
           const expected = new Error('message');
 
           jest
@@ -129,6 +129,8 @@ describe('AccessTokenService', () => {
           try {
             await firstValueFrom(underTest.getAccessToken());
           } catch (error) {
+            // Ignore error
+          } finally {
             expect(handleError).toHaveBeenCalledWith(
               expect.objectContaining({ error: expected as any }),
             );
