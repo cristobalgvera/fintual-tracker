@@ -13,6 +13,7 @@ import { HistoricalGoal } from './historical-goal.entity';
 @Entity('goals')
 export class Goal {
   @PrimaryColumn({ update: false })
+  @Index()
   id: string;
 
   @Column()
