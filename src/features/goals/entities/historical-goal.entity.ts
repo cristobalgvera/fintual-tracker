@@ -1,4 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('historical_goals')
 export class HistoricalGoal {
@@ -13,4 +19,10 @@ export class HistoricalGoal {
 
   @Column({ update: false })
   profit: number;
+
+  @CreateDateColumn({ update: false })
+  createdAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }
