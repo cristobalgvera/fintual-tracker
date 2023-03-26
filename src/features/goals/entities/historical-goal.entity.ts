@@ -3,8 +3,10 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Goal } from './goal.entity';
 
 @Entity('historical_goals')
 export class HistoricalGoal {
@@ -25,4 +27,10 @@ export class HistoricalGoal {
 
   @DeleteDateColumn()
   deletedAt?: Date;
+
+  @ManyToOne(() => Goal, ({ historicalGoals }) => historicalGoals, {
+    nullable: false,
+    orphanedRowAction: 'soft-delete',
+  })
+  goal: Promise<Goal>;
 }

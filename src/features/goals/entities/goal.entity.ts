@@ -4,9 +4,11 @@ import {
   DeleteDateColumn,
   Entity,
   Index,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { HistoricalGoal } from './historical-goal.entity';
 
 @Entity('goals')
 export class Goal {
@@ -25,4 +27,9 @@ export class Goal {
 
   @DeleteDateColumn()
   deletedAt?: Date;
+
+  @OneToMany(() => HistoricalGoal, ({ goal }) => goal, {
+    cascade: true,
+  })
+  historicalGoals: HistoricalGoal[];
 }
