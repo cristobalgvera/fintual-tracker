@@ -4,6 +4,7 @@ import { TrackingSharedModule } from '@features/shared';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Goal } from './entities';
+import { HistoricalGoal } from './entities/historical-goal.entity';
 import { GoalsService } from './goals.service';
 
 @Module({
@@ -11,7 +12,7 @@ import { GoalsService } from './goals.service';
     SharedModule,
     TrackingSharedModule,
     AccessTokenModule,
-    TypeOrmModule.forFeature([Goal]),
+    TypeOrmModule.forFeature([Goal, HistoricalGoal]),
   ],
   providers: [GoalsService],
   exports: [GoalsService],
