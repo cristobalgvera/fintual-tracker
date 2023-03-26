@@ -5,7 +5,11 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { catchError, map, Observable, switchMap } from 'rxjs';
 import { GOALS_PATH } from './constants';
-import { GoalAttributesDto, GoalsRequestDto, GoalsResponseDto } from './dto';
+import {
+  GoalAttributesWithIdDto,
+  GoalsRequestDto,
+  GoalsResponseDto,
+} from './dto';
 
 @Injectable()
 export class GoalsService {
@@ -16,7 +20,7 @@ export class GoalsService {
     private readonly accessTokenService: AccessTokenService,
   ) {}
 
-  getGoals(): Observable<GoalAttributesDto[]> {
+  getGoals(): Observable<GoalAttributesWithIdDto[]> {
     return this.accessTokenService.getAccessToken().pipe(
       map((accessToken) => this.createRequest(accessToken)),
       switchMap((request) => this.getGoalsRequest(request)),
@@ -34,7 +38,7 @@ export class GoalsService {
 
   private getGoalsRequest(
     request: GoalsRequestDto,
-  ): Observable<GoalAttributesDto[]> {
+  ): Observable<GoalAttributesWithIdDto[]> {
     return this.httpService
       .get<GoalsResponseDto>(GOALS_PATH, {
         params: request,
@@ -48,7 +52,12 @@ export class GoalsService {
           }),
         ),
         map((response) => response.data.data),
-        map((data) => data.map((goal) => goal.attributes)),
+        map((data) =>
+          data.map(({ id, attributes }) => ({
+            trackingId: id,
+            ...attributes,
+          })),
+        ),
       );
   }
 }
