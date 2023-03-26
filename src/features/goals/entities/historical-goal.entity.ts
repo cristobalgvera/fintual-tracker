@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -11,6 +12,7 @@ import { Goal } from './goal.entity';
 @Entity('historical_goals')
 export class HistoricalGoal {
   @PrimaryGeneratedColumn()
+  @Index()
   id: number;
 
   @Column({ update: false })
