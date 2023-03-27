@@ -1,6 +1,6 @@
 import { GoalType } from '../enum';
 
-export type GoalAttributes = {
+export type GoalAttributesDto = {
   name: string;
   /** Total amount */
   nav: number;

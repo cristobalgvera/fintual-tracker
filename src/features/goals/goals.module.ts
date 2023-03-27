@@ -1,23 +1,18 @@
-import { EnvironmentModule, EnvironmentService } from '@core/environment';
-
-import { ErrorModule } from '@core/error';
+import { SharedModule } from '@core/shared';
 import { AccessTokenModule } from '@features/access-token';
-import { HttpModule } from '@nestjs/axios';
+import { TrackingSharedModule } from '@features/shared';
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Goal } from './entities';
+import { HistoricalGoal } from './entities/historical-goal.entity';
 import { GoalsService } from './goals.service';
 
 @Module({
   imports: [
-    HttpModule.registerAsync({
-      imports: [EnvironmentModule],
-      inject: [EnvironmentService],
-      useFactory: (environmentService: EnvironmentService) => ({
-        baseURL: environmentService.getEnvironmentValue('TRACKING_BASE_URL'),
-      }),
-    }),
-    EnvironmentModule,
-    ErrorModule,
+    SharedModule,
+    TrackingSharedModule,
     AccessTokenModule,
+    TypeOrmModule.forFeature([Goal, HistoricalGoal]),
   ],
   providers: [GoalsService],
   exports: [GoalsService],

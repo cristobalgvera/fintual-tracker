@@ -44,8 +44,11 @@ describe('GoalsService', () => {
           .mockReturnValueOnce(of(ACCESS_TOKEN));
       });
 
-      it('should return the goals', async () => {
-        const goals = [{ attributes: 'goal_1' }, { attributes: 'goal_2' }];
+      it('should return the goals properly formatted', async () => {
+        const goals = [
+          { id: '1', attributes: { name: 'goal_1' } },
+          { id: '2', attributes: { name: 'goal_2' } },
+        ];
 
         jest
           .spyOn(httpService, 'get')
@@ -55,8 +58,14 @@ describe('GoalsService', () => {
 
         expect(actual).toMatchInlineSnapshot(`
           [
-            "goal_1",
-            "goal_2",
+            {
+              "name": "goal_1",
+              "trackingId": "1",
+            },
+            {
+              "name": "goal_2",
+              "trackingId": "2",
+            },
           ]
         `);
       });
