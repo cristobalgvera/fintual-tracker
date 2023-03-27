@@ -8,6 +8,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { GoalType } from '../enum';
 import { HistoricalGoal } from './historical-goal.entity';
 
 @Entity('goals')
@@ -19,6 +20,12 @@ export class Goal {
   @Column()
   @Index({ unique: true })
   name: string;
+
+  @Column({
+    type: 'enum',
+    enum: GoalType,
+  })
+  goalType: GoalType;
 
   @CreateDateColumn({ update: false })
   createdAt: Date;
