@@ -18,6 +18,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       migrations: ['dist/**/migrations/*.js'],
       migrationsTableName: 'migrations_typeorm',
       migrationsRun: true,
+      logging: !this.environmentService.isProd(),
     };
   }
 }
