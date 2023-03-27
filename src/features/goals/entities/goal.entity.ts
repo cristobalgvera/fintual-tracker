@@ -39,5 +39,5 @@ export class Goal {
   @OneToMany(() => HistoricalGoal, ({ goal }) => goal, {
     cascade: true,
   })
-  historicalGoals: HistoricalGoal[];
+  historicalGoals: Promise<HistoricalGoal[]>;
 }

@@ -32,7 +32,6 @@ export class HistoricalGoal {
 
   @ManyToOne(() => Goal, ({ historicalGoals }) => historicalGoals, {
     nullable: false,
-    orphanedRowAction: 'soft-delete',
   })
   goal: Promise<Goal>;
 }
