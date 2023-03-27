@@ -15,13 +15,13 @@ export class HistoricalGoal {
   @Index()
   id: number;
 
-  @Column({ update: false })
+  @Column({ type: 'decimal', precision: 18, scale: 4, update: false })
   totalAmount: number;
 
-  @Column({ update: false })
+  @Column({ type: 'decimal', precision: 18, scale: 4, update: false })
   deposited: number;
 
-  @Column({ update: false })
+  @Column({ type: 'decimal', precision: 18, scale: 4, update: false })
   profit: number;
 
   @CreateDateColumn({ update: false })
