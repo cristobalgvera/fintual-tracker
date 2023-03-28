@@ -7,7 +7,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
   constructor(private readonly environmentService: EnvironmentService) {}
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
-    return {
+    const options: TypeOrmModuleOptions = {
       type: 'postgres',
       host: this.environmentService.getEnvironmentValue('DB_HOST'),
       port: this.environmentService.getEnvironmentValue('DB_PORT'),
@@ -18,7 +18,19 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       migrations: ['dist/**/migrations/*.js'],
       migrationsTableName: 'migrations_typeorm',
       migrationsRun: true,
-      logging: !this.environmentService.isProd(),
+    };
+
+    if (this.environmentService.isProd())
+      return {
+        ...options,
+        ssl: {
+          ca: this.environmentService.getEnvironmentValue('DB_SSL_CA'),
+        },
+      };
+
+    return {
+      ...options,
+      logging: true,
     };
   }
 }
