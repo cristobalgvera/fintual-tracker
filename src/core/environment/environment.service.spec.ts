@@ -38,7 +38,7 @@ describe('EnvironmentService', () => {
 
       jest.spyOn(configService, 'getOrThrow').mockReturnValueOnce(value);
 
-      expect(underTest.isProd()).toEqual(true);
+      expect(underTest.isProd()).toBe(true);
     });
 
     it('should return false if the environment variable is not "production"', () => {
@@ -46,7 +46,7 @@ describe('EnvironmentService', () => {
 
       jest.spyOn(configService, 'getOrThrow').mockReturnValueOnce(value);
 
-      expect(underTest.isProd()).toEqual(false);
+      expect(underTest.isProd()).toBe(false);
     });
   });
 
@@ -62,7 +62,7 @@ describe('EnvironmentService', () => {
     it('should return false if the environment variable is not "true"', () => {
       jest.spyOn(configService, 'getOrThrow').mockReturnValueOnce(false);
 
-      expect(underTest.isSwaggerEnabled()).toEqual(false);
+      expect(underTest.isSwaggerEnabled()).toBe(false);
     });
   });
 });

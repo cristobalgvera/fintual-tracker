@@ -86,11 +86,7 @@ describe('EnvironmentValidation', () => {
           value: undefined,
         } as any);
 
-        try {
-          validateEnvironment({} as any);
-        } catch (actual) {
-          expect(actual.message).toEqual(expected);
-        }
+        expect(() => validateEnvironment({} as any)).toThrow(expected);
       });
     });
   });
