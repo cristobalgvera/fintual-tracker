@@ -17,7 +17,7 @@ describe('EnvironmentSchema', () => {
   };
 
   describe.each<Environment['NODE_ENV']>(['development', 'test', 'production'])(
-    'when validating %s environment',
+    'when validating %s environment with common variables',
     (NODE_ENV) => {
       let validEnvironment: Readonly<Environment>;
 
@@ -26,6 +26,13 @@ describe('EnvironmentSchema', () => {
           ...commonEnvironment,
           NODE_ENV,
         };
+
+        if (NODE_ENV === 'production') {
+          validEnvironment = {
+            ...validEnvironment,
+            DB_SSL_CA: 'db-ssl-ca',
+          };
+        }
       });
 
       describe('when environment is valid', () => {
@@ -72,6 +79,97 @@ describe('EnvironmentSchema', () => {
           { TRACKING_USER_PASSWORD: undefined },
           { TRACKING_USER_PASSWORD: 1234 },
           { TRACKING_USER_PASSWORD: '' },
+        ])('should invalidate if environment has %s', (partialEnvironment) => {
+          const environment = {
+            ...validEnvironment,
+            ...partialEnvironment,
+          } as Environment;
+
+          const validation = environmentSchema.validate(environment);
+
+          expect(validation.error).toBeDefined();
+        });
+      });
+    },
+  );
+
+  describe('when validating production environment', () => {
+    let validEnvironment: Readonly<Environment>;
+
+    beforeEach(() => {
+      validEnvironment = {
+        ...commonEnvironment,
+        NODE_ENV: 'production',
+        DB_SSL_CA: 'db-ssl-ca',
+      };
+    });
+
+    describe('when environment is valid', () => {
+      it.each<Partial<Environment>>([{ ...validEnvironment }])(
+        'should properly validate if environment has %s',
+        (partialEnvironment) => {
+          const environment = {
+            ...validEnvironment,
+            ...partialEnvironment,
+          } as Environment;
+
+          const validation = environmentSchema.validate(environment);
+
+          expect(validation.error).toBeUndefined();
+        },
+      );
+    });
+
+    describe('when environment is invalid', () => {
+      it.each<Partial<Record<keyof Environment, unknown>>>([
+        { DB_SSL_CA: undefined },
+        { DB_SSL_CA: 1234 },
+        { DB_SSL_CA: '' },
+      ])('should invalidate if environment has %s', (partialEnvironment) => {
+        const environment = {
+          ...validEnvironment,
+          ...partialEnvironment,
+        } as Environment;
+
+        const validation = environmentSchema.validate(environment);
+
+        expect(validation.error).toBeDefined();
+      });
+    });
+  });
+
+  describe.each<Environment['NODE_ENV']>(['development', 'test'])(
+    'when validating %s environment',
+    (NODE_ENV) => {
+      let validEnvironment: Readonly<Environment>;
+
+      beforeEach(() => {
+        validEnvironment = {
+          ...commonEnvironment,
+          NODE_ENV,
+        };
+      });
+
+      describe('when environment is valid', () => {
+        it.each<Partial<Environment>>([{ DB_SSL_CA: undefined }])(
+          'should properly validate if environment has %s',
+          (partialEnvironment) => {
+            const environment = {
+              ...validEnvironment,
+              ...partialEnvironment,
+            } as Environment;
+
+            const validation = environmentSchema.validate(environment);
+
+            expect(validation.error).toBeUndefined();
+          },
+        );
+      });
+
+      describe('when environment is invalid', () => {
+        it.each<Partial<Record<keyof Environment, unknown>>>([
+          { DB_SSL_CA: 'some-string' },
+          { DB_SSL_CA: '' },
         ])('should invalidate if environment has %s', (partialEnvironment) => {
           const environment = {
             ...validEnvironment,

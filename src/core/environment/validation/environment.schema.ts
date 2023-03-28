@@ -12,11 +12,17 @@ const productionEnvironmentSchema: Joi.StrictSchemaMap<Environment> = {
   DB_USERNAME: Joi.string().required(),
   DB_PASSWORD: Joi.string().required(),
   DB_NAME: Joi.string().required(),
+  DB_SSL_CA: Joi.string().required(),
   TRACKING_BASE_URL: Joi.string().uri().required(),
   TRACKING_USER_EMAIL: Joi.string().email().required(),
   TRACKING_USER_PASSWORD: Joi.string().required(),
 };
 
-export const environmentSchema = Joi.object<Environment, true>(
-  productionEnvironmentSchema,
-);
+export const environmentSchema = Joi.object<Environment, true>({
+  ...productionEnvironmentSchema,
+}).when(Joi.object({ NODE_ENV: Joi.invalid('production') }).unknown(), {
+  then: Joi.object<Environment, true>({
+    ...productionEnvironmentSchema,
+    DB_SSL_CA: Joi.string().forbidden(),
+  }),
+});
