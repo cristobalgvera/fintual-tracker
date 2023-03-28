@@ -12,7 +12,8 @@ export class CronService {
     private readonly logger: Logger,
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  // TODO: Allow dynamic cron jobs time expressions and time zones
+  @Cron(CronExpression.EVERY_DAY_AT_3AM, { timeZone: 'America/Santiago' })
   async followUpGoals(): Promise<void> {
     const goals = await firstValueFrom(this.goalsService.getGoals());
 
