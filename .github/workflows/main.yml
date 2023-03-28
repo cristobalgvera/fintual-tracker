@@ -6,6 +6,7 @@ on:
 
 jobs:
   build:
+    name: Build Checks
     runs-on: ubuntu-latest
     strategy:
       matrix:
