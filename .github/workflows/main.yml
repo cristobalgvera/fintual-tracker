@@ -6,6 +6,7 @@ on:
 
 jobs:
   build:
+    name: Build Checks
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -24,6 +25,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Lint files
         run: pnpm lint:all
+      - name: Check TypeScript
+        run: pnpm lint:types
       - name: Test files
         run: pnpm test:cov
       - name: Build project

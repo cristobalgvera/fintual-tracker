@@ -20,6 +20,14 @@ module.exports = {
   },
   collectCoverageFrom: [`**/*.(${COVERAGE_FILE_SUFFIX.join('|')}).ts`],
   coverageDirectory: './coverage',
+  coverageThreshold: {
+    global: {
+      statements: 100,
+      branches: 100,
+      functions: 100,
+      lines: 100,
+    },
+  },
   setupFilesAfterEnv: ['<rootDir>/test/env.setup.js'],
   testEnvironment: 'node',
   // Helps to use aliases in tsconfig (@module/*)
