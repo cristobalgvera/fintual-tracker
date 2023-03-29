@@ -16,6 +16,7 @@ const productionEnvironmentSchema: Joi.StrictSchemaMap<Environment> = {
   TRACKING_BASE_URL: Joi.string().uri().required(),
   TRACKING_USER_EMAIL: Joi.string().email().required(),
   TRACKING_USER_PASSWORD: Joi.string().required(),
+  USER_TIME_ZONE: Joi.string().optional(),
 };
 
 export const environmentSchema = Joi.object<Environment, true>({

@@ -14,6 +14,7 @@ describe('EnvironmentSchema', () => {
     TRACKING_BASE_URL: 'http://localhost:3000',
     TRACKING_USER_EMAIL: 'user@email.com',
     TRACKING_USER_PASSWORD: 'password',
+    USER_TIME_ZONE: 'user-time-zone',
   };
 
   describe.each<Environment['NODE_ENV']>(['development', 'test', 'production'])(
@@ -37,6 +38,7 @@ describe('EnvironmentSchema', () => {
 
       describe('when environment is valid', () => {
         it.each<Partial<Environment>>([
+          { ...commonEnvironment, NODE_ENV },
           { PORT: undefined },
           { ENABLE_SWAGGER: undefined },
         ])(
@@ -79,6 +81,8 @@ describe('EnvironmentSchema', () => {
           { TRACKING_USER_PASSWORD: undefined },
           { TRACKING_USER_PASSWORD: 1234 },
           { TRACKING_USER_PASSWORD: '' },
+          { USER_TIME_ZONE: 1234 },
+          { USER_TIME_ZONE: '' },
         ])('should invalidate if environment has %s', (partialEnvironment) => {
           const environment = {
             ...validEnvironment,

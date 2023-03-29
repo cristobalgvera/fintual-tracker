@@ -12,6 +12,7 @@ export class Environment {
   TRACKING_BASE_URL: string;
   TRACKING_USER_EMAIL: string;
   TRACKING_USER_PASSWORD: string;
+  USER_TIME_ZONE?: string;
 
   @Transform(({ value }) => Buffer.from(value, 'base64').toString('ascii'))
   DB_SSL_CA?: string;
