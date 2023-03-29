@@ -1,3 +1,4 @@
+import cron from 'cron-validate';
 import * as Joi from 'joi';
 import { Environment } from '../environment.type';
 
@@ -17,6 +18,19 @@ const productionEnvironmentSchema: Joi.StrictSchemaMap<Environment> = {
   TRACKING_USER_EMAIL: Joi.string().email().required(),
   TRACKING_USER_PASSWORD: Joi.string().required(),
   USER_TIME_ZONE: Joi.string().optional(),
+  USER_SCHEDULES: Joi.array()
+    .items(
+      Joi.string().custom((value, helper) => {
+        const cronResult = cron(value);
+
+        if (cronResult.isValid()) return true;
+
+        return helper.message({
+          custom: `Invalid cron: ${cronResult.getError().join(',')}`,
+        });
+      }),
+    )
+    .required(),
 };
 
 export const environmentSchema = Joi.object<Environment, true>({
