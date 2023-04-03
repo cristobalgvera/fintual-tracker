@@ -20,15 +20,15 @@ const productionEnvironmentSchema: Joi.StrictSchemaMap<Environment> = {
   USER_TIME_ZONE: Joi.string().optional(),
   USER_SCHEDULES: Joi.array()
     .items(
-      Joi.string().custom((value, helper) => {
+      Joi.string().custom((value) => {
         const cronResult = cron(value);
 
-        if (cronResult.isValid()) return true;
+        if (!cronResult.isValid())
+          throw new Error(`Invalid cron: ${cronResult.getError().join(',')}`);
 
-        return helper.message({
-          custom: `Invalid cron: ${cronResult.getError().join(',')}`,
-        });
+        return value;
       }),
+      'Validate if cron expression is valid',
     )
     .required(),
 };
