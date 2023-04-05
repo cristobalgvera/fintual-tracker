@@ -1,25 +1,35 @@
-import { GoalsService } from '@features/goals';
-import { TrackingService } from '@features/tracking';
-import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { firstValueFrom } from 'rxjs';
+import { EnvironmentService } from '@core/environment';
+import { FollowUpService } from '@features/follow-up';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
 
 @Injectable()
-export class CronService {
+export class CronService implements OnModuleInit {
   constructor(
-    private readonly goalsService: GoalsService,
-    private readonly trackingService: TrackingService,
+    private readonly schedulerRegistry: SchedulerRegistry,
+    private readonly environmentService: EnvironmentService,
     private readonly logger: Logger,
+    private readonly followUpService: FollowUpService,
   ) {}
 
-  // TODO: Allow dynamic cron jobs time expressions and time zones
-  @Cron(CronExpression.EVERY_DAY_AT_3AM, { timeZone: 'America/Santiago' })
-  async followUpGoals(): Promise<void> {
-    const goals = await firstValueFrom(this.goalsService.getGoals());
+  onModuleInit() {
+    this.environmentService
+      .getEnvironmentValue('USER_SCHEDULES')
+      .forEach((scheduleTime) => this.scheduleJob(scheduleTime));
+  }
 
-    for (const goal of goals) {
-      this.logger.log(`Tracking goal: ${goal.name}, ID: ${goal.trackingId}`);
-      await firstValueFrom(this.trackingService.trackGoal(goal));
-    }
+  private scheduleJob(scheduleTime: string): void {
+    this.logger.log(`Scheduling job at ${scheduleTime}`);
+
+    const cronJob = new CronJob({
+      cronTime: scheduleTime,
+      onTick: this.followUpService.followUpGoals.bind(this.followUpService),
+      timeZone: this.environmentService.getEnvironmentValue('USER_TIME_ZONE'),
+    });
+
+    this.schedulerRegistry.addCronJob(scheduleTime, cronJob);
+
+    cronJob.start();
   }
 }

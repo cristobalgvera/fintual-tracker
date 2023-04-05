@@ -1,149 +1,120 @@
 import { TestBed } from '@automock/jest';
-import { GoalAttributesWithIdDto, GoalsService } from '@features/goals';
-import { TrackingService } from '@features/tracking';
-import { Logger } from '@nestjs/common';
-import { of, throwError } from 'rxjs';
+import { Environment, EnvironmentService } from '@core/environment';
+import { createMock } from '@golevelup/ts-jest';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob, CronJobParameters } from 'cron';
 import { CronService } from './cron.service';
+
+jest.mock('cron', () => ({
+  CronJob: jest.fn(),
+}));
+
+const cronJobMock = jest.mocked(CronJob);
 
 describe('CronService', () => {
   let underTest: CronService;
-  let logger: Logger;
-  let goalsService: GoalsService;
-  let trackingService: TrackingService;
+  let environmentService: EnvironmentService;
+  let schedulerRegistry: SchedulerRegistry;
 
   beforeEach(() => {
     const { unit, unitRef } = TestBed.create(CronService).compile();
 
     underTest = unit;
-    logger = unitRef.get(Logger);
-    goalsService = unitRef.get(GoalsService);
-    trackingService = unitRef.get(TrackingService);
+    environmentService = unitRef.get(EnvironmentService);
+    schedulerRegistry = unitRef.get(SchedulerRegistry);
   });
 
-  describe('followUpGoals', () => {
-    describe('when operation succeeds', () => {
-      let goalsServiceSpy: jest.SpyInstance;
-      let trackingServiceSpy: jest.SpyInstance;
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('onModuleInit', () => {
+    describe('when there are schedules', () => {
+      let cronJob: CronJob;
+
+      const environment = {
+        USER_SCHEDULES: ['schedule-1', 'schedule-2'],
+        USER_TIME_ZONE: 'time-zone',
+      } as Readonly<Environment>;
 
       beforeEach(() => {
-        goalsServiceSpy = jest
-          .spyOn(goalsService, 'getGoals')
-          .mockReturnValueOnce(of([{}] as any));
-
-        trackingServiceSpy = jest
-          .spyOn(trackingService, 'trackGoal')
-          .mockReturnValue(of({} as any));
+        cronJob = createMock<CronJob>();
+        cronJobMock.mockReturnValue(cronJob);
       });
 
-      describe('when calling the GoalsService', () => {
-        it('should call it once', async () => {
-          await underTest.followUpGoals();
-
-          expect(goalsServiceSpy).toHaveBeenCalledTimes(1);
-        });
-
-        describe('when there are no goals', () => {
-          beforeEach(() => {
-            goalsServiceSpy.mockReset().mockReturnValueOnce(of([] as any));
-          });
-
-          it('should not call the TrackingService', async () => {
-            await underTest.followUpGoals();
-
-            expect(trackingServiceSpy).not.toHaveBeenCalled();
-          });
-        });
+      beforeEach(() => {
+        jest
+          .spyOn(environmentService, 'getEnvironmentValue')
+          .mockImplementation((key) => environment[key]);
       });
 
-      describe('when calling the TrackingService', () => {
-        it('should call it once', async () => {
-          await underTest.followUpGoals();
-
-          expect(trackingServiceSpy).toHaveBeenCalledTimes(1);
+      it('should schedule all jobs', () => {
+        const cronJobs = environment.USER_SCHEDULES.map((schedule) => {
+          const job = { id: schedule, start: jest.fn() };
+          cronJobMock.mockReturnValueOnce(job as any);
+          return job;
         });
 
-        it('should call it with the goals provided by the GoalsService', async () => {
-          const expected = [{ id: 1 }, { id: 2 }, { id: 3 }];
+        const schedulerRegistrySpy = jest.spyOn(
+          schedulerRegistry,
+          'addCronJob',
+        );
 
-          goalsServiceSpy.mockReset().mockReturnValueOnce(of(expected));
+        underTest.onModuleInit();
 
-          await underTest.followUpGoals();
-
-          expected.forEach((goal, index) => {
-            expect(trackingServiceSpy).toHaveBeenNthCalledWith(index + 1, goal);
-          });
+        cronJobs.forEach((job, index) => {
+          expect(schedulerRegistrySpy).toHaveBeenNthCalledWith(
+            index + 1,
+            environment.USER_SCHEDULES[index],
+            job,
+          );
         });
       });
 
-      describe('when logging', () => {
-        let loggerSpy: jest.SpyInstance;
+      it('should create the jobs with the correct schedule parameters', () => {
+        underTest.onModuleInit();
 
-        beforeEach(() => {
-          loggerSpy = jest.spyOn(logger, 'log');
+        environment.USER_SCHEDULES.forEach((scheduleTime, index) => {
+          expect(cronJobMock).toHaveBeenNthCalledWith(
+            index + 1,
+            expect.objectContaining<CronJobParameters>({
+              cronTime: scheduleTime,
+              onTick: expect.any(Function),
+              timeZone: environment.USER_TIME_ZONE,
+            }),
+          );
         });
+      });
 
-        it('should log the goals provided by the GoalsService', async () => {
-          const expected = [
-            { trackingId: 'tracking-id-1' },
-            { trackingId: 'tracking-id-2' },
-            { trackingId: 'tracking-id-3' },
-          ] as GoalAttributesWithIdDto[];
+      it('should start all jobs', () => {
+        underTest.onModuleInit();
 
-          goalsServiceSpy.mockReset().mockReturnValueOnce(of(expected));
-
-          await underTest.followUpGoals();
-
-          expected.forEach((goal, index) => {
-            expect(loggerSpy).toHaveBeenNthCalledWith(
-              index + 1,
-              expect.stringContaining(goal.trackingId),
-            );
-          });
-        });
+        expect(cronJob.start).toHaveBeenCalledTimes(
+          environment.USER_SCHEDULES.length,
+        );
       });
     });
 
-    describe('when operation fails', () => {
-      describe('when GoalsService fails', () => {
-        beforeEach(() => {
-          jest
-            .spyOn(goalsService, 'getGoals')
-            .mockReturnValueOnce(
-              throwError(() => new Error('GoalsService error')),
-            );
-        });
+    describe('when there are no schedules', () => {
+      const environment = {
+        USER_SCHEDULES: [] as any,
+      } as Readonly<Environment>;
 
-        it('should throw the error', async () => {
-          expect.hasAssertions();
-
-          await expect(() =>
-            underTest.followUpGoals(),
-          ).rejects.toThrowErrorMatchingInlineSnapshot(`"GoalsService error"`);
-        });
+      beforeEach(() => {
+        jest
+          .spyOn(environmentService, 'getEnvironmentValue')
+          .mockImplementation((key) => environment[key]);
       });
 
-      describe('when TrackingService fails', () => {
-        beforeEach(() => {
-          jest
-            .spyOn(goalsService, 'getGoals')
-            .mockReturnValueOnce(of([{}] as any));
+      it('should not schedule any jobs', () => {
+        const schedulerRegistrySpy = jest.spyOn(
+          schedulerRegistry,
+          'addCronJob',
+        );
 
-          jest
-            .spyOn(trackingService, 'trackGoal')
-            .mockReturnValueOnce(
-              throwError(() => new Error('TrackingService error')),
-            );
-        });
+        underTest.onModuleInit();
 
-        it('should throw the error', async () => {
-          expect.hasAssertions();
-
-          await expect(() =>
-            underTest.followUpGoals(),
-          ).rejects.toThrowErrorMatchingInlineSnapshot(
-            `"TrackingService error"`,
-          );
-        });
+        expect(schedulerRegistrySpy).not.toHaveBeenCalled();
       });
     });
   });

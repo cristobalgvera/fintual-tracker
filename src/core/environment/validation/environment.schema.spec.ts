@@ -14,6 +14,8 @@ describe('EnvironmentSchema', () => {
     TRACKING_BASE_URL: 'http://localhost:3000',
     TRACKING_USER_EMAIL: 'user@email.com',
     TRACKING_USER_PASSWORD: 'password',
+    USER_TIME_ZONE: 'user-time-zone',
+    USER_SCHEDULES: [],
   };
 
   describe.each<Environment['NODE_ENV']>(['development', 'test', 'production'])(
@@ -37,8 +39,10 @@ describe('EnvironmentSchema', () => {
 
       describe('when environment is valid', () => {
         it.each<Partial<Environment>>([
+          { ...commonEnvironment, NODE_ENV },
           { PORT: undefined },
           { ENABLE_SWAGGER: undefined },
+          { USER_SCHEDULES: ['* * * * *', '0 0 0 0 0'] },
         ])(
           'should properly validate if environment has %s',
           (partialEnvironment) => {
@@ -79,6 +83,14 @@ describe('EnvironmentSchema', () => {
           { TRACKING_USER_PASSWORD: undefined },
           { TRACKING_USER_PASSWORD: 1234 },
           { TRACKING_USER_PASSWORD: '' },
+          { USER_TIME_ZONE: 1234 },
+          { USER_TIME_ZONE: '' },
+          { USER_SCHEDULES: undefined },
+          { USER_SCHEDULES: 'not-array' },
+          { USER_SCHEDULES: [''] },
+          { USER_SCHEDULES: [1234] },
+          { USER_SCHEDULES: ['not-cron-expression'] },
+          { USER_SCHEDULES: [undefined] },
         ])('should invalidate if environment has %s', (partialEnvironment) => {
           const environment = {
             ...validEnvironment,
