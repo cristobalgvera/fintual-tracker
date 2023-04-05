@@ -3,10 +3,29 @@ name: CI
 
 on:
   pull_request:
+    branches: ['main', 'dev']
     types: ['opened', 'reopened', 'synchronize']
 
 jobs:
-  build:
+  docker-build:
+    name: Check Docker Build
+    runs-on: ubuntu-latest
+    env:
+      DB_PORT: 5432
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build the Docker image
+        run: docker-compose build --no-cache --force-rm app
+  docker-test:
+    name: Test Docker Compose
+    runs-on: ubuntu-latest
+    env:
+      DB_PORT: 5432
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test the Docker image
+        run: docker-compose up -d app
+  project-build:
     name: Build Checks
     runs-on: ubuntu-latest
     strategy:
