@@ -5,7 +5,7 @@ services:
     ports:
       - ${DB_PORT}:5432
     volumes:
-      - data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -17,10 +17,28 @@ services:
     ports:
       - 4050:80
     volumes:
-      - pgadmin-data:/var/lib/pgadmin
+      - pgadmin_data:/var/lib/pgadmin
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+  redis:
+    image: redis
+    command: redis-server --save 60 1 --loglevel warning --requirepass $REDIS_AUTH
+    ports:
+      - ${REDIS_PORT}:6379
+    environment:
+      - REDIS_AUTH=${REDIS_AUTH}
+      - REDIS_REPLICATION_MODE=master
+    volumes:
+      - redis_data:/data
+  redisinsight:
+    image: redislabs/redisinsight
+    ports:
+      - 4051:8001
+    volumes:
+      - redisinsight_data:/db
+    depends_on:
+      - redis
   app:
     build:
       context: .
@@ -29,13 +47,22 @@ services:
     environment:
       - DB_HOST=database
       - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_AUTH=${REDIS_AUTH}
     ports:
       - 4000:8080
     depends_on:
       - database
+      - redis
     volumes:
       - ./src:/app/src
 
 volumes:
-  data:
-  pgadmin-data:
+  redisinsight_data:
+  redis_data:
+  pgadmin_data:
+  db_data:
