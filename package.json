@@ -43,6 +43,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "cron-validate": "^1.4.5",
+    "date-fns": "^2.29.3",
     "dotenv": "^16.0.3",
     "ioredis": "^5.3.1",
     "joi": "^17.7.0",

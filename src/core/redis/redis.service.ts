@@ -18,7 +18,7 @@ export class RedisService implements OnApplicationShutdown {
     return this.redisClient.quit();
   }
 
-  set(key: string, data: unknown) {
+  set<T = unknown>(key: string, data: T) {
     return this.redisClient.set(key, JSON.stringify(data));
   }
 
