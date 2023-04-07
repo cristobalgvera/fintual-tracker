@@ -9,6 +9,9 @@ export class Environment {
   DB_PASSWORD: string;
   DB_PORT: number;
   DB_USERNAME: string;
+  REDIS_HOST: string;
+  REDIS_PORT: number;
+  REDIS_AUTH: string;
   TRACKING_BASE_URL: string;
   TRACKING_USER_EMAIL: string;
   TRACKING_USER_PASSWORD: string;

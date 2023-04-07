@@ -18,3 +18,6 @@ process.env.TRACKING_BASE_URL = 'http://localhost:3000';
 process.env.TRACKING_USER_EMAIL = 'email@example.com';
 process.env.TRACKING_USER_PASSWORD = 'password';
 process.env.USER_SCHEDULES = JSON.stringify([]);
+process.env.REDIS_HOST = 'localhost';
+process.env.REDIS_PORT = 3000;
+process.env.REDIS_AUTH = 'password';
