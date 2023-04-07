@@ -7,8 +7,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // TODO: Add proper global prefix
-  app.setGlobalPrefix('SERVICE_PREFIX');
+  app.setGlobalPrefix('api');
   app.enableVersioning();
 
   const environmentService = app.get(EnvironmentService);
@@ -25,26 +24,23 @@ async function bootstrap() {
   const logger = app.get(Logger);
   const port = environmentService.getEnvironmentValue('PORT');
 
-  if (environmentService.isSwaggerEnabled()) enableSwagger(app, port, logger);
+  if (environmentService.isSwaggerEnabled()) enableSwagger(app);
 
   await app.listen(port, () => {
     logger.log(`Listening on port ${port}`);
   });
 }
 
-function enableSwagger(app: INestApplication, port: number, logger: Logger) {
+function enableSwagger(app: INestApplication) {
   const config = new DocumentBuilder()
-    // TODO: add proper service name
-    .setTitle('SERVICE_NAME')
-    .setDescription('SERVICE_DESCRIPTION')
-    .setVersion('1.0')
+    .setTitle('Fintual Tracker')
+    .setDescription(
+      'Tracker service for make extensive usage of the Fintual API',
+    )
     .setExternalDoc('Postman collection', '/api-doc-json')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-
-  logger.log(`[Swagger URL]: http://localhost:${port}/api-doc`);
-  logger.log(`[Postman JSON]: http://localhost:${port}/api-doc-json`);
 
   SwaggerModule.setup('api-doc', app, document);
 }
