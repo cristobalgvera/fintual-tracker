@@ -1,8 +1,8 @@
 {
-  "name": "SERVICE_NAME",
+  "name": "Fintual Tracker",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Tracker service for make extensive usage of the Fintual API",
+  "author": "Cristóbal Gajardo Vera <cristobalgajardo.v@gmail.com>",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
